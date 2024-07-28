@@ -166,3 +166,64 @@ export interface TrabajandoJobCoordenadas {
   type: string
   coordinates: number[]
 }
+
+// ? TRABAJOS CON SENTIDO
+export interface TrabajoConSentidoResponse {
+  status: string
+  content: TrabajoConSentidoContent
+}
+
+export interface TrabajoConSentidoContent {
+  offers: TrabajoConSentidoOffer[]
+}
+
+export interface TrabajoConSentidoOffer {
+  id: number
+  title: string
+  slug: string
+}
+
+export interface TrabajoConSentidoJobResponse {
+  status: string
+  content: TrabajoConSentidoJobContent
+}
+
+export interface TrabajoConSentidoJobContent {
+  offer: TrabajoConSentidoJobOffer
+}
+
+export interface TrabajoConSentidoJobOffer {
+  id: number
+  organizationId: number
+  userId: number
+  status: string
+  tabulated: number
+  weight: number
+  title: string
+  alias: string
+  slug: string
+  redirect: null
+  purpose: string
+  description: string
+  requirements: string
+  optionals: string
+  city: string
+  workingDay: string
+  workingMode: string
+  experience: number[]
+  professions: string[]
+  benefits: any[]
+  knowledgeAreas: null
+  levels: string[]
+  areas: string[]
+  startAt: string
+  closeAt: null
+  moderatedAt: string
+  createdAt: string
+  updatedAt: string
+  organization: TrabajoConSentidoJobOrganization
+}
+
+export interface TrabajoConSentidoJobOrganization {
+  name: string
+}
