@@ -1,5 +1,6 @@
 export enum Website {
-  LABORUM = 'Laborum'
+  LABORUM = 'Laborum',
+  TRABAJO_CON_SENTIDO = 'Trabajo Con Sentido'
 }
 
 export enum Position {
