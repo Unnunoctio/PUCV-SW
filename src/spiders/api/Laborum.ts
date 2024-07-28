@@ -4,7 +4,6 @@ import type { LaborumResponse } from '../types'
 
 export class Laborum {
   private readonly baseUrl = 'https://www.laborum.cl/api/avisos/searchV2?pageSize=100&sort=RECIENTES'
-
   private readonly headers = {
     Referer: 'https://www.laborum.cl/empleos-busqueda.html?recientes=true',
     'X-Site-Id': 'BMCL',
@@ -14,13 +13,14 @@ export class Laborum {
   public async run (): Promise<Job[]> {
     const allJobs: Job[] = []
     for (const position of Object.values(Position)) {
+      // Obtener las urls de paginas
       const pages = await this.getPages(position)
+      // Obtener los jobs de cada pagina
       const jobs = (await Promise.all(pages.map(async (page) => {
         return await this.getJobs(page, position)
       }))).flat()
 
-      console.log(position)
-      console.log(jobs)
+      allJobs.push(...jobs)
     }
 
     return allJobs
@@ -40,7 +40,7 @@ export class Laborum {
   }
 
   private async getJobs (page: string, position: Position): Promise<Job[]> {
-    const res = await fetch(this.baseUrl, {
+    const res = await fetch(page, {
       method: 'POST',
       headers: this.headers,
       body: JSON.stringify({ query: position })
