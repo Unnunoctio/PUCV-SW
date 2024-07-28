@@ -1,5 +1,5 @@
 import { Modality, Position, Type, Website } from '../enums'
-import type { LaborumContent } from '../spiders/types'
+import type { LaborumContent, TrabajoConSentidoJobOffer } from '../spiders/types'
 
 export class Job {
   website: Website
@@ -38,6 +38,33 @@ export class Job {
         this.modality = Modality.PRESENCIAL
         break
       case 'Híbrido':
+        this.modality = Modality.HIBRIDO
+        break
+      case 'Remoto':
+        this.modality = Modality.REMOTO
+        break
+    }
+  }
+
+  setTrabajoConSentidoData (data: TrabajoConSentidoJobOffer): void {
+    this.title = data.title
+    this.company = data.organization.name
+    this.location = data.city
+    this.description = data.description
+
+    // Date
+    const date = data.moderatedAt.split('T')
+    this.date = new Date(date[0])
+
+    // Type Completa
+    this.type = (data.workingDay === 'Completa') ? Type.FULL_TIME : Type.PART_TIME
+
+    // Modality Presencial - Semi-presencial - Remoto
+    switch (data.workingMode) {
+      case 'Presencial':
+        this.modality = Modality.PRESENCIAL
+        break
+      case 'Semi-presencial':
         this.modality = Modality.HIBRIDO
         break
       case 'Remoto':
