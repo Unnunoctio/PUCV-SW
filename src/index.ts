@@ -1,29 +1,38 @@
-import { Laborum } from './spiders/api/Laborum'
-import { TrabajoConSentido } from './spiders/api/TrabajoConSentido'
+import mongoose from 'mongoose'
+import { DB_URI } from './config'
+import type { Job } from './classes/Job'
+import { jobService } from './services/job-service'
+import { Laborum, TrabajoConSentido } from './spiders/api'
 
-console.log('Hello via Bun!')
+async function main (): Promise<void> {
+  console.log('Starting Scraping')
+  try {
+    // TODO: Connect to Database
+    await mongoose.connect(DB_URI as string)
+    console.log('Connected to Database')
 
-// const res = await fetch('https://api.trabajoconsentido.com/offers?tags=psicologo', {
-//   method: 'GET',
-//   headers: {
-//     // Referer: 'https://www.trabajando.cl/trabajo-empleo'
-//     // 'X-Site-Id': 'BMCL',
-//     // 'Content-Type': 'application/json'
-//   }
-//   // body: JSON.stringify({
-//   //   query: 'periodista'
-//   // })
-// })
+    // TODO: Scraping
+    const allJobs: Job[] = []
+    const laborumJobs = await new Laborum().run()
+    const sentidoJobs = await new TrabajoConSentido().run()
+    allJobs.push(...laborumJobs, ...sentidoJobs)
 
-// const data = await res.json()
+    // TODO: Save Jobs
+    await jobService.saveManyJobs(allJobs)
+  } catch (error) {
+    console.log('An error occurred:', error)
+    process.exit(1)
+  } finally {
+    await mongoose.disconnect()
+    console.log('Disconnected from Database')
+  }
+}
 
-// console.log(data)
-
-// console.log(Object.values(Position).map(position => ({
-//   query: position
-// })))
-
-const laborumJobs = await new Laborum().run()
-const sentidoJobs = await new TrabajoConSentido().run()
-console.log(laborumJobs)
-console.log(sentidoJobs)
+// TODO: Run the main function
+main().then(() => {
+  console.log('Process completed successfully')
+  process.exit(0)
+}).catch((error) => {
+  console.error('Process failed:', error)
+  process.exit(1)
+})
