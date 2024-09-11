@@ -111,8 +111,8 @@ export interface TrabajandoJobResponse {
   ofertaInclusiva: boolean
   fechaPublicacion: string
   fechaExpiracion: string
-  fechaPublicacionFormatoIngles: Date
-  fechaExpiracionFormatoIngles: Date
+  fechaPublicacionFormatoIngles: string
+  fechaExpiracionFormatoIngles: string
   urlLogo: string
   finalizaEn: string
   publicadoHace: string

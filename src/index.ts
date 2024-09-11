@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import { DB_URI } from './config'
 import type { Job } from './classes/Job'
 import { jobService } from './services/job-service'
-import { Laborum, TrabajoConSentido } from './spiders/api'
+import { Laborum, Trabajando, TrabajoConSentido } from './spiders/api'
 
 async function main (): Promise<void> {
   console.log('Starting Scraping')
@@ -14,11 +14,13 @@ async function main (): Promise<void> {
     // TODO: Scraping
     const allJobs: Job[] = []
     const laborumJobs = await new Laborum().run()
+    const trabajandoJobs = await new Trabajando().run()
     const sentidoJobs = await new TrabajoConSentido().run()
-    allJobs.push(...laborumJobs, ...sentidoJobs)
+    allJobs.push(...laborumJobs, ...trabajandoJobs, ...sentidoJobs)
 
     // TODO: Save Jobs
     await jobService.saveManyJobs(allJobs)
+    console.log('Jobs saved successfully')
   } catch (error) {
     console.log('An error occurred:', error)
     process.exit(1)

@@ -1,5 +1,5 @@
 import { Modality, Position, Type, Website } from '../enums'
-import type { LaborumContent, TrabajoConSentidoJobOffer } from '../spiders/types'
+import type { LaborumContent, TrabajandoJobResponse, TrabajoConSentidoJobOffer } from '../spiders/types'
 
 export class Job {
   website: Website
@@ -56,6 +56,35 @@ export class Job {
         break
       case 'Remoto':
         this.modality = Modality.REMOTO
+        break
+    }
+  }
+
+  setTrabajandoData (data: TrabajandoJobResponse): void {
+    this.title = data.nombreCargo
+    this.company = data.nombreEmpresaFantasia
+    this.location = data.ubicacion.direccion
+    this.description = `${data.descripcionOferta}\n ${data.requisitosMinimos}`
+
+    // Date (yy-mm-dd)
+    this.date = new Date(data.fechaPublicacionFormatoIngles)
+
+    // Type Part Time -> Otro
+    this.type = (data.nombreJornada === 'Part Time') ? Type.PART_TIME : Type.FULL_TIME
+
+    // Modality Jornada Completa - Mixta (Teletrabajo + Presencial) - Teletrabajo
+    switch (data.nombreJornada) {
+      case 'Jornada Completa':
+        this.modality = Modality.PRESENCIAL
+        break
+      case 'Mixta (Teletrabajo + Presencial)':
+        this.modality = Modality.HIBRIDO
+        break
+      case 'Teletrabajo':
+        this.modality = Modality.REMOTO
+        break
+      default:
+        this.modality = Modality.PRESENCIAL
         break
     }
   }
