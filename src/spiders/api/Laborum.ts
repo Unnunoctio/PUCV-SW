@@ -4,6 +4,8 @@ import type { LaborumResponse } from '../types'
 
 export class Laborum {
   private readonly baseUrl = 'https://www.laborum.cl/api/avisos/searchV2?pageSize=100&sort=RECIENTES'
+  private readonly jobBaseUrl = 'https://www.laborum.cl/empleos/'
+
   private readonly headers = {
     Referer: 'https://www.laborum.cl/empleos-busqueda.html?recientes=true',
     'X-Site-Id': 'BMCL',
@@ -48,7 +50,8 @@ export class Laborum {
     const data: LaborumResponse = await res.json()
 
     const jobs = data.content.map(c => {
-      const job = new Job(Website.LABORUM, position)
+      const productUrl = `${this.jobBaseUrl}${c.id}`
+      const job = new Job(Website.LABORUM, position, productUrl)
       job.setLaborumData(c)
       return job
     })

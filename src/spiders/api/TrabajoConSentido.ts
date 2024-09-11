@@ -5,13 +5,15 @@ import type { TrabajoConSentidoJobResponse, TrabajoConSentidoResponse } from '..
 export class TrabajoConSentido {
   private readonly baseUrl = 'https://api.trabajoconsentido.com/offers'
   private readonly offerBaseUrl = 'https://api.trabajoconsentido.com/offers/slug'
+  private readonly jobBaseUrl = 'https://listado.trabajoconsentido.com/trabajos/'
+
   // private readonly headers = {}
 
   public async run (): Promise<Job[]> {
     const allJobs: Job[] = []
     for (const position of Object.values(Position)) {
       // Genera la url de la page (no tiene formato de paginas)
-      const page = `${this.baseUrl}?tags=${position}`
+      const page = `${this.baseUrl}?tags=${position.replaceAll(' ', ',')}`
       // Obtener las urls de cada oferta
       const offers = await this.getOffers(page)
       // Obtener los jobs de cada oferta
@@ -39,8 +41,9 @@ export class TrabajoConSentido {
   private async getJob (url: string, position: Position): Promise<Job> {
     const res = await fetch(url)
     const data: TrabajoConSentidoJobResponse = await res.json()
+    const productUrl = `${this.jobBaseUrl}${data.content.offer.slug}`
 
-    const job = new Job(Website.TRABAJO_CON_SENTIDO, position)
+    const job = new Job(Website.TRABAJO_CON_SENTIDO, position, productUrl)
     job.setTrabajoConSentidoData(data.content.offer)
     return job
   }

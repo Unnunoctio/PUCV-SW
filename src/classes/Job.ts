@@ -4,6 +4,7 @@ import type { LaborumContent, TrabajoConSentidoJobOffer } from '../spiders/types
 export class Job {
   website: Website
   position: Position
+  url: string
   title: string | undefined
   modality: Modality | undefined
   type: Type | undefined
@@ -13,10 +14,23 @@ export class Job {
   description: string | undefined
   skills: string[]
 
-  constructor (website: Website, position: Position) {
+  constructor (website: Website, position: Position, url: string) {
     this.website = website
     this.position = position
+    this.url = url
     this.skills = []
+  }
+
+  isComplete (): boolean {
+    return (
+      this.title !== undefined &&
+      this.modality !== undefined &&
+      this.type !== undefined &&
+      this.company !== undefined &&
+      this.location !== undefined &&
+      this.date !== undefined &&
+      this.description !== undefined
+    )
   }
 
   setLaborumData (data: LaborumContent): void {
