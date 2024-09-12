@@ -1,10 +1,11 @@
 import mongoose from 'mongoose'
+import { scheduleJob } from 'node-schedule'
 import { DB_URI } from './config'
 import type { Job } from './classes/Job'
 import { jobService } from './services/job-service'
 import { Laborum, Trabajando, TrabajoConSentido } from './spiders/api'
 
-async function main (): Promise<void> {
+const scraping = async (): Promise<void> => {
   console.log('Starting Scraping')
   try {
     // TODO: Connect to Database
@@ -13,9 +14,16 @@ async function main (): Promise<void> {
 
     // TODO: Scraping
     const allJobs: Job[] = []
+    console.log('Scraping Jobs')
+    console.time('Laborum')
     const laborumJobs = await new Laborum().run()
+    console.timeEnd('Laborum')
+    console.time('Trabajando')
     const trabajandoJobs = await new Trabajando().run()
+    console.timeEnd('Trabajando')
+    console.time('Trabajo con Sentido')
     const sentidoJobs = await new TrabajoConSentido().run()
+    console.timeEnd('Trabajo con Sentido')
     allJobs.push(...laborumJobs, ...trabajandoJobs, ...sentidoJobs)
 
     // TODO: Save Jobs
@@ -30,11 +38,10 @@ async function main (): Promise<void> {
   }
 }
 
-// TODO: Run the main function
-main().then(() => {
-  console.log('Process completed successfully')
-  process.exit(0)
-}).catch((error) => {
-  console.error('Process failed:', error)
-  process.exit(1)
-})
+// const test = async (): Promise<void> => {
+//   console.log('test schedule')
+//   console.log(new Date())
+// }
+
+// scheduleJob('*/1 * * * *', test)
+scheduleJob('0 6 * * *', scraping)
