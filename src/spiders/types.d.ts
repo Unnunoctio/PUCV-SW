@@ -1,3 +1,9 @@
+import type { Job } from '../classes/Job'
+
+// ? SPIDER
+export interface Spider {
+  run: () => Promise<Job[]>
+}
 
 // ? LABORUM
 export interface LaborumResponse {

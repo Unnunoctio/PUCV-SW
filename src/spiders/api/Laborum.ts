@@ -1,8 +1,8 @@
 import { Job } from '../../classes/Job'
 import { Position, Website } from '../../enums'
-import type { LaborumResponse } from '../types'
+import type { LaborumResponse, Spider } from '../types'
 
-export class Laborum {
+export class Laborum implements Spider {
   private readonly baseUrl = 'https://www.laborum.cl/api/avisos/searchV2?pageSize=100&sort=RECIENTES'
   private readonly jobBaseUrl = 'https://www.laborum.cl/empleos/'
 

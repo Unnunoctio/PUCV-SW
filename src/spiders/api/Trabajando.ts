@@ -1,8 +1,8 @@
 import { Job } from '../../classes/Job'
 import { Position, Website } from '../../enums'
-import type { TrabajandoJobResponse, TrabajandoResponse } from '../types'
+import type { Spider, TrabajandoJobResponse, TrabajandoResponse } from '../types'
 
-export class Trabajando {
+export class Trabajando implements Spider {
   private readonly baseUrl = 'https://www.trabajando.cl/api/searchjob?orden=RANKING'
   private readonly offerBaseUrl = 'https://www.trabajando.cl/api/ofertas/'
   private readonly jobBaseUrl = 'https://www.trabajando.cl/trabajo-empleo/'

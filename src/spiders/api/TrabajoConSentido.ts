@@ -1,8 +1,8 @@
 import { Job } from '../../classes/Job'
 import { Position, Website } from '../../enums'
-import type { TrabajoConSentidoJobResponse, TrabajoConSentidoResponse } from '../types'
+import type { Spider, TrabajoConSentidoJobResponse, TrabajoConSentidoResponse } from '../types'
 
-export class TrabajoConSentido {
+export class TrabajoConSentido implements Spider {
   private readonly baseUrl = 'https://api.trabajoconsentido.com/offers'
   private readonly offerBaseUrl = 'https://api.trabajoconsentido.com/offers/slug'
   private readonly jobBaseUrl = 'https://listado.trabajoconsentido.com/trabajos/'
