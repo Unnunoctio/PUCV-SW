@@ -1,9 +1,17 @@
 import mongoose from 'mongoose'
 import { scheduleJob } from 'node-schedule'
 import { DB_URI } from './config'
-import type { Job } from './classes/Job'
+import { Website } from './enums'
 import { jobService } from './services/job-service'
 import { Laborum, Trabajando, TrabajoConSentido } from './spiders/api'
+import type { Spider } from './spiders/types'
+
+const runSpider = async (spider: Spider, spiderName: string): Promise<void> => {
+  console.time(spiderName)
+  const jobs = await spider.run()
+  await jobService.saveManyJobs(jobs)
+  console.timeEnd(spiderName)
+}
 
 const scraping = async (): Promise<void> => {
   console.log('Starting Scraping')
@@ -13,22 +21,13 @@ const scraping = async (): Promise<void> => {
     console.log('Connected to Database')
 
     // TODO: Scraping
-    const allJobs: Job[] = []
     console.log('Scraping Jobs')
-    console.time('Laborum')
-    const laborumJobs = await new Laborum().run()
-    console.timeEnd('Laborum')
-    console.time('Trabajando')
-    const trabajandoJobs = await new Trabajando().run()
-    console.timeEnd('Trabajando')
-    console.time('Trabajo con Sentido')
-    const sentidoJobs = await new TrabajoConSentido().run()
-    console.timeEnd('Trabajo con Sentido')
-    allJobs.push(...laborumJobs, ...trabajandoJobs, ...sentidoJobs)
 
-    // TODO: Save Jobs
-    await jobService.saveManyJobs(allJobs)
-    console.log('Jobs saved successfully')
+    await runSpider(new Laborum(), Website.LABORUM)
+    await runSpider(new Trabajando(), Website.TRABAJANDO)
+    await runSpider(new TrabajoConSentido(), Website.TRABAJO_CON_SENTIDO)
+
+    console.log('Scraping jobs finished')
   } catch (error) {
     console.log('An error occurred:', error)
     process.exit(1)
@@ -38,10 +37,8 @@ const scraping = async (): Promise<void> => {
   }
 }
 
-// const test = async (): Promise<void> => {
-//   console.log('test schedule')
-//   console.log(new Date())
-// }
+// First Scraping
+await scraping()
 
-// scheduleJob('*/1 * * * *', test)
+// Schedule Scraping at 6 AM every day
 scheduleJob('0 6 * * *', scraping)
