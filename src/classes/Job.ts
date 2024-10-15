@@ -1,3 +1,4 @@
+import * as cheerio from 'cheerio'
 import { Modality, Position, Type, Website } from '../enums'
 import type { LaborumContent, TrabajandoJobResponse, TrabajoConSentidoJobOffer } from '../spiders/types'
 
@@ -114,5 +115,12 @@ export class Job {
         this.modality = Modality.REMOTO
         break
     }
+  }
+
+  setLinkedinHTML (html: string, date: Date, modality: Modality): void {
+    this.date = date
+    this.modality = modality
+
+    // const $ = cheerio.load(html)
   }
 }
