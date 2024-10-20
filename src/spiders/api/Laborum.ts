@@ -1,5 +1,6 @@
 import { Job } from '../../classes/Job'
 import { Position, Website } from '../../enums'
+import { laborumFetch } from '../../utils/fetch'
 import type { LaborumResponse, Spider } from '../types'
 
 export class Laborum implements Spider {
@@ -29,12 +30,7 @@ export class Laborum implements Spider {
   }
 
   private async getPages (position: Position): Promise<string[]> {
-    const res = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: this.headers,
-      body: JSON.stringify({ query: position })
-    })
-    const data: LaborumResponse = await res.json()
+    const data: LaborumResponse = await laborumFetch(this.baseUrl, this.headers, JSON.stringify({ query: position }))
 
     const total = Math.ceil(data.totalSearched / data.size)
     const pages = Array.from({ length: total }, (_, i) => `${this.baseUrl}&page=${i}`)
@@ -42,12 +38,7 @@ export class Laborum implements Spider {
   }
 
   private async getJobs (page: string, position: Position): Promise<Job[]> {
-    const res = await fetch(page, {
-      method: 'POST',
-      headers: this.headers,
-      body: JSON.stringify({ query: position })
-    })
-    const data: LaborumResponse = await res.json()
+    const data: LaborumResponse = await laborumFetch(page, this.headers, JSON.stringify({ query: position }))
 
     const jobs = data.content.map(c => {
       const productUrl = `${this.jobBaseUrl}${c.id}`
