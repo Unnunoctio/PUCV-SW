@@ -30,7 +30,8 @@ export class Laborum implements Spider {
   }
 
   private async getPages (position: Position): Promise<string[]> {
-    const data: LaborumResponse = await laborumFetch(this.baseUrl, this.headers, JSON.stringify({ query: position }))
+    const data: LaborumResponse | undefined = await laborumFetch(this.baseUrl, this.headers, JSON.stringify({ query: position }))
+    if (data === undefined) return []
 
     const total = Math.ceil(data.totalSearched / data.size)
     const pages = Array.from({ length: total }, (_, i) => `${this.baseUrl}&page=${i}`)
@@ -38,7 +39,8 @@ export class Laborum implements Spider {
   }
 
   private async getJobs (page: string, position: Position): Promise<Job[]> {
-    const data: LaborumResponse = await laborumFetch(page, this.headers, JSON.stringify({ query: position }))
+    const data: LaborumResponse | undefined = await laborumFetch(page, this.headers, JSON.stringify({ query: position }))
+    if (data === undefined) return []
 
     const jobs = data.content.map(c => {
       const productUrl = `${this.jobBaseUrl}${c.id}`
