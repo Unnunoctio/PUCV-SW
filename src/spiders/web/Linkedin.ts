@@ -18,7 +18,6 @@ export class Linkedin implements Spider {
     const allJobs: Job[] = []
     for (const position of Object.values(Position)) {
       const positionLinks: Link[] = []
-      console.log(position)
       for (const modality of Object.values(Modality)) {
         // Obtener las urls de paginas
         const pages = await this.getPages(position, modality)
