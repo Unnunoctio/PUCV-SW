@@ -121,6 +121,19 @@ export class Job {
     this.date = date
     this.modality = modality
 
-    // const $ = cheerio.load(html)
+    const $ = cheerio.load(html)
+    this.title = $('.top-card-layout__title').text().trim()
+    this.company = $('.topcard__org-name-link').text().trim()
+    this.location = $('.topcard__flavor.topcard__flavor--bullet').text().trim()
+
+    // Type (Jornada completa, Media jornada, Contrato por obra, Temporal, Voluntario)
+    const items = $('.description__job-criteria-text.description__job-criteria-text--criteria')
+    const type = items.eq(1).text().trim()
+    if (type === 'Media jornada' || type === 'Voluntario') this.type = Type.PART_TIME
+    else this.type = Type.FULL_TIME
+
+    // Description
+    const desc = $('.description__text.description__text--rich .show-more-less-html__markup').html()?.trim()
+    this.description = desc
   }
 }

@@ -4,6 +4,12 @@ import { Modality, Position, Website } from '../../enums'
 import { linkedinFetch } from '../../utils/fetch'
 import type { Spider } from '../types'
 
+interface Link {
+  date: Date
+  url: string
+  modality: Modality
+}
+
 export class Linkedin implements Spider {
   private readonly pageUrl = 'https://www.linkedin.com/jobs/search?location=Chile&position=1&pageNum=0'
   private readonly jobsUrl = 'https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?location=Chile'
@@ -11,20 +17,28 @@ export class Linkedin implements Spider {
   public async run (): Promise<Job[]> {
     const allJobs: Job[] = []
     for (const position of Object.values(Position)) {
+      const positionLinks: Link[] = []
       console.log(position)
       for (const modality of Object.values(Modality)) {
         // Obtener las urls de paginas
         const pages = await this.getPages(position, modality)
-        // Obtener los jobs de cada pagina
-        const jobs = (await Promise.all(pages.map(async (page) => {
-          return await this.getJobs(page, position, modality)
+        // Obtener los links de los jobs
+        const links = (await Promise.all(pages.map(async (page) => {
+          return await this.getLinks(page, modality)
         }))).flat()
 
-        allJobs.push(...jobs)
+        positionLinks.push(...links)
       }
+
+      // Obtener los jobs de cada link
+      const jobs = (await Promise.all(positionLinks.map(async (link) => {
+        return await this.getJob(link, position)
+      }))).flat()
+
+      allJobs.push(...jobs.filter(job => job !== undefined))
     }
     console.log('alljobs:', allJobs.length)
-    return []
+    return allJobs
   }
 
   private async getPages (position: Position, modality: Modality): Promise<string[]> {
@@ -44,13 +58,13 @@ export class Linkedin implements Spider {
     return Array.from({ length: totalPages }, (_, i) => `${this.jobsUrl}&keywords=${position}&f_WT=${fwt}&start=${i * 10}`)
   }
 
-  private async getJobs (page: string, position: Position, modality: Modality): Promise<Job[]> {
+  private async getLinks (page: string, modality: Modality): Promise<Link[]> {
     const body = await linkedinFetch(page)
     if (body === undefined) return []
 
     const $ = cheerio.load(body)
 
-    const jobsItems: Array<{ date: Date, link: string }> = []
+    const links: Link[] = []
     $('.base-card').each((_, elem) => {
       let link = $(elem).find('.base-card__full-link').attr('href')
       if (link === undefined) link = $(elem).attr('href')
@@ -58,18 +72,18 @@ export class Linkedin implements Spider {
       let dateTxt = $(elem).find('.job-search-card__listdate').attr('datetime')
       if (dateTxt === undefined) dateTxt = $(elem).find('.job-search-card__listdate--new').attr('datetime')
 
-      if (link !== undefined && dateTxt !== undefined) jobsItems.push({ date: new Date(dateTxt as string), link })
+      if (link !== undefined && dateTxt !== undefined) links.push({ date: new Date(dateTxt), url: link, modality })
     })
 
-    const jobs = await Promise.all(jobsItems.map(async jobItem => {
-      const jobHtml = await linkedinFetch(jobItem.link)
-      if (jobHtml === undefined) return undefined
+    return links
+  }
 
-      const job = new Job(Website.LINKEDIN, position, jobItem.link)
-      job.setLinkedinHTML(jobHtml, jobItem.date, modality)
-      return job
-    }))
+  private async getJob (link: Link, position: Position): Promise<Job | undefined> {
+    const body = await linkedinFetch(link.url)
+    if (body === undefined) return undefined
 
-    return jobs.filter(job => job !== undefined)
+    const job = new Job(Website.LINKEDIN, position, link.url)
+    job.setLinkedinHTML(body, link.date, link.modality)
+    return job
   }
 }
