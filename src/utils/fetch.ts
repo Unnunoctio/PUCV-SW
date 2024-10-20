@@ -12,7 +12,7 @@ export const laborumFetch = async (url: string, headers: any, body: string): Pro
     const { data } = await axios.post(url, body, { headers })
     return data
   } catch (error) {
-    console.log('Error in fetching data from Laborum:', error)
+    console.error('Error in fetching data from Laborum:', url)
     return undefined
   }
 }
@@ -25,7 +25,7 @@ export const trabajandoFetch = async (url: string, headers: any): Promise<any | 
     const { data } = await axios.get(url, { headers })
     return data
   } catch (error) {
-    console.log('Error in fetching data from Trabajando:', error)
+    console.error('Error in fetching data from Trabajando:', url)
     return undefined
   }
 }
@@ -38,7 +38,7 @@ export const trabajoConSentidoFetch = async (url: string, headers: any): Promise
     const { data } = await axios.get(url, { headers })
     return data
   } catch (error) {
-    console.log('Error in fetching data from TrabajoConSentido:', error)
+    console.error('Error in fetching data from TrabajoConSentido:', url)
     return undefined
   }
 }
