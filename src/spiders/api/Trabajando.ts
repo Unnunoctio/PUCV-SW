@@ -1,5 +1,6 @@
 import { Job } from '../../classes/Job'
 import { Position, Website } from '../../enums'
+import { trabajandoFetch } from '../../utils/fetch'
 import type { Spider, TrabajandoJobResponse, TrabajandoResponse } from '../types'
 
 export class Trabajando implements Spider {
@@ -25,7 +26,7 @@ export class Trabajando implements Spider {
         return await this.getJob(url, position)
       }))).flat()
 
-      allJobs.push(...jobs)
+      allJobs.push(...jobs.filter(job => job !== undefined))
     }
 
     return allJobs
@@ -41,8 +42,8 @@ export class Trabajando implements Spider {
 
   private async getPages (position: Position): Promise<string[]> {
     const url = `${this.baseUrl}&palabraClave=${position}&${this.getCareerQuery(position)}`
-    const res = await fetch(url, { headers: this.headers })
-    const data: TrabajandoResponse = await res.json()
+    const data: TrabajandoResponse | undefined = await trabajandoFetch(url, this.headers)
+    if (data === undefined) return []
 
     const total = data.cantidadPaginas
     const pages = Array.from({ length: total }, (_, i) => `${url}&pagina=${i + 1}`)
@@ -50,8 +51,8 @@ export class Trabajando implements Spider {
   }
 
   private async getOffers (page: string): Promise<string[]> {
-    const res = await fetch(page, { headers: this.headers })
-    const data: TrabajandoResponse = await res.json()
+    const data: TrabajandoResponse | undefined = await trabajandoFetch(page, this.headers)
+    if (data === undefined) return []
 
     const urls: string[] = []
     for (const offer of data.ofertas) {
@@ -60,11 +61,11 @@ export class Trabajando implements Spider {
     return urls
   }
 
-  private async getJob (url: string, position: Position): Promise<Job> {
-    const res = await fetch(url, { headers: this.headers })
-    const data: TrabajandoJobResponse = await res.json()
-    const productUrl = `${this.jobBaseUrl}${position.replaceAll(' ', '%20')}/trabajo/${data.idOferta}`
+  private async getJob (url: string, position: Position): Promise<Job | undefined> {
+    const data: TrabajandoJobResponse | undefined = await trabajandoFetch(url, this.headers)
+    if (data === undefined) return undefined
 
+    const productUrl = `${this.jobBaseUrl}${position.replaceAll(' ', '%20')}/trabajo/${data.idOferta}`
     const job = new Job(Website.TRABAJANDO, position, productUrl)
     job.setTrabajandoData(data)
     return job

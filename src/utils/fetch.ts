@@ -13,7 +13,20 @@ export const laborumFetch = async (url: string, headers: any, body: string): Pro
     const { data } = await axios.post(url, body, { headers })
     return data
   } catch (error) {
-    console.log(error)
+    console.log('Error in fetching data from Laborum:', error)
+    return undefined
+  }
+}
+
+export const trabajandoFetch = async (url: string, headers: any): Promise<any | undefined> => {
+  const agent = randomUserAgent()
+  headers['User-Agent'] = agent
+
+  try {
+    const { data } = await axios.get(url, { headers })
+    return data
+  } catch (error) {
+    console.log('Error in fetching data from Trabajando:', error)
     return undefined
   }
 }
