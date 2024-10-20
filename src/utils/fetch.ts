@@ -31,19 +31,45 @@ export const trabajandoFetch = async (url: string, headers: any): Promise<any | 
   }
 }
 
-export const linkedinFetch = async (url: string): Promise<string | undefined> => {
-  while (true) {
-    const agent = randomUserAgent()
-    const res = await fetch(url, { headers: { 'User-Agent': agent } })
-    if (res.ok) return await res.text()
-    await sleep(RETRY_DELAY * (Math.floor(Math.random() * 10) + 1))
+export const trabajoConSentidoFetch = async (url: string, headers: any): Promise<any | undefined> => {
+  const agent = randomUserAgent()
+  headers['User-Agent'] = agent
+
+  try {
+    const { data } = await axios.get(url, { headers })
+    return data
+  } catch (error) {
+    console.log('Error in fetching data from TrabajoConSentido:', error)
+    return undefined
   }
-  // for (let i = 0; i < MAX_RETRIES; i++) {
-  //   const agent = randomUserAgent()
-  //   const res = await fetch(url, { headers: { 'User-Agent': agent } })
-  //   if (res.ok) return await res.text()
-  //   await sleep(RETRY_DELAY)
-  // }
-  // console.log(`${url} 5 retries`)
-  // return undefined
 }
+
+export const linkedinFetch = async (url: string): Promise<string> => {
+  const agent = randomUserAgent()
+
+  try {
+    const { data } = await axios.get(url, { headers: { 'User-Agent': agent } })
+    return data
+  } catch (error) {
+    const delay = RETRY_DELAY * (Math.floor(Math.random() * 10) + 1)
+    await sleep(delay)
+    return await linkedinFetch(url)
+  }
+}
+
+// export const linkedinFetch = async (url: string): Promise<string | undefined> => {
+//   while (true) {
+//     const agent = randomUserAgent()
+//     const res = await fetch(url, { headers: { 'User-Agent': agent } })
+//     if (res.ok) return await res.text()
+//     await sleep(RETRY_DELAY * (Math.floor(Math.random() * 10) + 1))
+//   }
+//   // for (let i = 0; i < MAX_RETRIES; i++) {
+//   //   const agent = randomUserAgent()
+//   //   const res = await fetch(url, { headers: { 'User-Agent': agent } })
+//   //   if (res.ok) return await res.text()
+//   //   await sleep(RETRY_DELAY)
+//   // }
+//   // console.log(`${url} 5 retries`)
+//   // return undefined
+// }

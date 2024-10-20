@@ -1,5 +1,6 @@
 import { Job } from '../../classes/Job'
 import { Position, Website } from '../../enums'
+import { trabajoConSentidoFetch } from '../../utils/fetch'
 import type { Spider, TrabajoConSentidoJobResponse, TrabajoConSentidoResponse } from '../types'
 
 export class TrabajoConSentido implements Spider {
@@ -7,7 +8,7 @@ export class TrabajoConSentido implements Spider {
   private readonly offerBaseUrl = 'https://api.trabajoconsentido.com/offers/slug'
   private readonly jobBaseUrl = 'https://listado.trabajoconsentido.com/trabajos/'
 
-  // private readonly headers = {}
+  private readonly headers = {}
 
   public async run (): Promise<Job[]> {
     const allJobs: Job[] = []
@@ -21,15 +22,15 @@ export class TrabajoConSentido implements Spider {
         return await this.getJob(url, position)
       }))).flat()
 
-      allJobs.push(...jobs)
+      allJobs.push(...jobs.filter(job => job !== undefined))
     }
 
     return allJobs
   }
 
   private async getOffers (page: string): Promise<string[]> {
-    const res = await fetch(page)
-    const data: TrabajoConSentidoResponse = await res.json()
+    const data: TrabajoConSentidoResponse | undefined = await trabajoConSentidoFetch(page, this.headers)
+    if (data === undefined) return []
 
     const urls: string[] = []
     for (const offer of data.content.offers) {
@@ -38,11 +39,11 @@ export class TrabajoConSentido implements Spider {
     return urls
   }
 
-  private async getJob (url: string, position: Position): Promise<Job> {
-    const res = await fetch(url)
-    const data: TrabajoConSentidoJobResponse = await res.json()
-    const productUrl = `${this.jobBaseUrl}${data.content.offer.slug}`
+  private async getJob (url: string, position: Position): Promise<Job | undefined> {
+    const data: TrabajoConSentidoJobResponse | undefined = await trabajoConSentidoFetch(url, this.headers)
+    if (data === undefined) return undefined
 
+    const productUrl = `${this.jobBaseUrl}${data.content.offer.slug}`
     const job = new Job(Website.TRABAJO_CON_SENTIDO, position, productUrl)
     job.setTrabajoConSentidoData(data.content.offer)
     return job
