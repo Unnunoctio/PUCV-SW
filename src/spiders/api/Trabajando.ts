@@ -64,6 +64,12 @@ export class Trabajando implements Spider {
   private async getJob (url: string, position: Position): Promise<Job | undefined> {
     const data: TrabajandoJobResponse | undefined = await trabajandoFetch(url, this.headers)
     if (data === undefined) return undefined
+    // Verifica que el titulo de la oferta contenga la posicion: 'Community Manager'
+    if (position === Position.COMMUNITY_MANAGER) {
+      const positionSplit = Position.COMMUNITY_MANAGER.toLowerCase().split(' ')
+      const titleSplit = data.nombreCargo.toLowerCase().split(' ')
+      if (!positionSplit.every(word => titleSplit.includes(word))) return undefined
+    }
 
     const productUrl = `${this.jobBaseUrl}${position.replaceAll(' ', '%20')}/trabajo/${data.idOferta}`
     const job = new Job(Website.TRABAJANDO, position, productUrl)

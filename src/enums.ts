@@ -9,7 +9,8 @@ export enum Position {
   PERIODISTA = 'Periodista',
   COMUNICADOR = 'Comunicador',
   PUBLICISTA = 'Publicista',
-  RELACIONADOR_PUBLICO = 'Relacionador Público'
+  RELACIONADOR_PUBLICO = 'Relacionador Público',
+  COMMUNITY_MANAGER = 'Community Manager'
 }
 
 export enum Modality {
