@@ -8,7 +8,7 @@ const saveManyJobs = async (jobs: Job[]): Promise<void> => {
   try {
     const updateOperations = jobsToSave.map(job => ({
       updateOne: {
-        filter: { url: job.url },
+        filter: { url: job.url, position: job.position }, // url unica por posicion
         update: {
           $set: {
             website: job.website,
