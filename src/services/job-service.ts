@@ -20,6 +20,7 @@ const saveManyJobs = async (jobs: Job[]): Promise<void> => {
             company: job.company,
             location: job.location,
             date: job.date,
+            isPractice: job.isPractice,
             description: job.description
           }
         },

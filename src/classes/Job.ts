@@ -13,6 +13,7 @@ export class Job {
   location: string | undefined
   date: Date | undefined
   description: string | undefined
+  isPractice: boolean = false
   skills: string[]
 
   constructor (website: Website, position: Position, url: string) {
@@ -32,6 +33,18 @@ export class Job {
       this.date !== undefined &&
       this.description !== undefined
     )
+  }
+
+  setPractice (): void {
+    if (this.title === undefined) return
+
+    const normalizedTitle = this.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    const titleArray = normalizedTitle.match(/\b[a-zA-Z]+\b/g) ?? []
+    const matchArray = new Set(['practica', 'practicas', 'practicante'])
+
+    this.isPractice = titleArray.some(word => matchArray.has(word))
   }
 
   setLaborumData (data: LaborumContent): void {
@@ -59,6 +72,9 @@ export class Job {
         this.modality = Modality.REMOTO
         break
     }
+
+    // Practice
+    this.setPractice()
   }
 
   setTrabajandoData (data: TrabajandoJobResponse): void {
@@ -88,6 +104,9 @@ export class Job {
         this.modality = Modality.PRESENCIAL
         break
     }
+
+    // Practice
+    this.setPractice()
   }
 
   setTrabajoConSentidoData (data: TrabajoConSentidoJobOffer): void {
@@ -115,6 +134,9 @@ export class Job {
         this.modality = Modality.REMOTO
         break
     }
+
+    // Practice
+    this.setPractice()
   }
 
   setLinkedinHTML (html: string, date: Date, modality: Modality): void {
@@ -135,5 +157,8 @@ export class Job {
     // Description
     const desc = $('.description__text.description__text--rich .show-more-less-html__markup').html()?.trim()
     this.description = desc
+
+    // Practice
+    this.setPractice()
   }
 }

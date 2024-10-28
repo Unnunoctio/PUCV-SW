@@ -14,6 +14,7 @@ const JobSchema = new Schema({
   company: { type: String, required: true },
   location: { type: String, required: true },
   date: { type: Date, required: true },
+  isPractice: { type: Boolean, required: true },
   description: { type: String, required: true }
 }, {
   timestamps: true,
