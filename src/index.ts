@@ -27,7 +27,7 @@ const scraping = async (): Promise<void> => {
     await runSpider(new Laborum(), Website.LABORUM)
     await runSpider(new Trabajando(), Website.TRABAJANDO)
     await runSpider(new TrabajoConSentido(), Website.TRABAJO_CON_SENTIDO)
-    // await runSpider(new Linkedin(), Website.LINKEDIN) // Preguntar Community Manager
+    await runSpider(new Linkedin(), Website.LINKEDIN) // Preguntar Community Manager
 
     console.log('Scraping jobs finished')
   } catch (error) {

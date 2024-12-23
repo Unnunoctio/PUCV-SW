@@ -67,6 +67,7 @@ export class Linkedin implements Spider {
     $('.base-card').each((_, elem) => {
       let link = $(elem).find('.base-card__full-link').attr('href')
       if (link === undefined) link = $(elem).attr('href')
+      link = link?.split('?')[0]
 
       let dateTxt = $(elem).find('.job-search-card__listdate').attr('datetime')
       if (dateTxt === undefined) dateTxt = $(elem).find('.job-search-card__listdate--new').attr('datetime')
